@@ -3,16 +3,17 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "/api/index.py"
     }
   ],
   "env": {
     "PYTHON_VERSION": "3.9"
   },
   "functions": {
-    "app.py": {
+    "api/index.py": {
       "maxDuration": 30
     }
   },
   "regions": ["iad1"]
 }
+
