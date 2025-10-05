@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 import random
 import json
+import openai
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -100,12 +103,49 @@ def drawRandomCards():
         card['position'] = '正位' if random.choice([True, False]) else '逆位'
     return selected_cards
 
-import openai
-import os
-from dotenv import load_dotenv
-
 # 加载环境变量
 load_dotenv()
+
+def createOpenAIClient(api_key):
+    """创建 OpenAI 客户端，处理 Vercel 环境问题"""
+    # 检测是否在 Vercel 环境中
+    is_vercel = os.getenv('VERCEL') == '1'
+    
+    if is_vercel:
+        # Vercel 环境：清理可能干扰的环境变量
+        proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']
+        for var in proxy_vars:
+            if var in os.environ:
+                del os.environ[var]
+        
+        # 尝试多种初始化方式
+        initialization_methods = [
+            # 方法1：标准初始化
+            lambda: openai.OpenAI(api_key=api_key),
+            # 方法2：显式设置基础 URL
+            lambda: openai.OpenAI(api_key=api_key, base_url="https://api.openai.com/v1"),
+            # 方法3：设置超时
+            lambda: openai.OpenAI(api_key=api_key, timeout=30.0),
+            # 方法4：组合参数
+            lambda: openai.OpenAI(api_key=api_key, base_url="https://api.openai.com/v1", timeout=30.0)
+        ]
+        
+        for i, method in enumerate(initialization_methods, 1):
+            try:
+                return method()
+            except TypeError as e:
+                if 'proxies' in str(e) and i < len(initialization_methods):
+                    continue  # 尝试下一个方法
+                else:
+                    raise e
+            except Exception as e:
+                if i < len(initialization_methods):
+                    continue  # 尝试下一个方法
+                else:
+                    raise e
+    else:
+        # 本地环境使用标准初始化
+        return openai.OpenAI(api_key=api_key)
 
 def generateReading(question, cards):
     """调用OpenAI GPT-4o生成塔罗牌解读"""
@@ -113,7 +153,10 @@ def generateReading(question, cards):
     if not api_key:
         return "错误：未配置OpenAI API密钥，请联系管理员。"
     
-    client = openai.OpenAI(api_key=api_key)
+    try:
+        client = createOpenAIClient(api_key)
+    except Exception as e:
+        return f"错误：OpenAI 客户端初始化失败：{str(e)}"
 
     # 构建牌面描述
     card_descriptions = []
