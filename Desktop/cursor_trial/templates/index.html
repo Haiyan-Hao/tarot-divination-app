@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易塔罗牌占卜</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔮 简易塔罗牌占卜</h1>
+            <p>输入您的问题，让塔罗牌为您指引方向</p>
+        </header>
+
+        <main>
+            <div id="drawSection" class="draw-section">
+                <h2>第一步：静心默念</h2>
+                <p>请在心里默念您想要占卜的问题，保持专注和虔诚的心态</p>
+                <div class="meditation-tips">
+                    <h3>💭 默念指导</h3>
+                    <ul>
+                        <li>闭上眼睛，深呼吸</li>
+                        <li>在心中清晰地默念您的问题</li>
+                        <li>保持开放和接受的心态</li>
+                        <li>准备好后，点击下方按钮抽取塔罗牌</li>
+                    </ul>
+                </div>
+                <button id="drawCardsBtn" onclick="drawCards()">抽取塔罗牌</button>
+            </div>
+
+            <div id="loadingSection" class="loading-section" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p id="loadingText">正在为您抽取塔罗牌...</p>
+            </div>
+
+            <div id="cardsSection" class="cards-section" style="display: none;">
+                <h2>您的塔罗牌</h2>
+                <div class="cards-container" id="cardsContainer">
+                    <!-- 塔罗牌将在这里显示 -->
+                </div>
+                <div class="question-section">
+                    <h3>第二步：输入您的问题</h3>
+                    <textarea id="questionInput" placeholder="请在这里输入您想要占卜的问题..." rows="3"></textarea>
+                    <button id="divinationBtn" onclick="generateReading()">生成解读</button>
+                </div>
+            </div>
+
+            <div id="resultSection" class="result-section" style="display: none;">
+                <h2>您的塔罗牌解读</h2>
+                <div class="reading-container" id="readingContainer">
+                    <!-- 解读内容将在这里显示 -->
+                </div>
+                <button onclick="resetDivination()" class="reset-btn">重新占卜</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2025 简易塔罗牌占卜 - 仅供娱乐参考</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
